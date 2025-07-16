@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Product sells predictor{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>Product sells predictor</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/predict">Predict</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('profile.view_profile') }}">Profile</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/register">Sign Up</a>
+            {% endif %}
+
+
+        </nav>
+    </header>
+</body>
+</html>
