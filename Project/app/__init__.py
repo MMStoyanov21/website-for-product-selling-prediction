@@ -1,8 +1,3 @@
-"""
-Module: app/__init__.py
-Description: Application factory and initialization of extensions and blueprints.
-"""
-
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -24,9 +19,8 @@ UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def create_app(config_class=Config):
-
     app = Flask(__name__)
-    app.config.from_object('config.Config')
+    app.config.from_object(config_class)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
     db.init_app(app)
@@ -34,12 +28,16 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     migrate.init_app(app, db)
 
+    # Move imports here to avoid circular import issues
     from app.auth.routes import auth
     from app.main.routes import main
-
+    from app.survey.routes import survey  # ✅ moved here
+    from app.profile.routes import profile
+    app.register_blueprint(profile)
 
     app.register_blueprint(auth)
     app.register_blueprint(main)
+    app.register_blueprint(survey)
 
     with app.app_context():
         db.create_all()

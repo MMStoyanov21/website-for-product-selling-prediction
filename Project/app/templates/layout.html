@@ -4,9 +4,54 @@
     <meta charset="UTF-8">
     <title>{% block title %}Product sells predictor{% endblock %}</title>
 </head>
+<style>
+    body {
+        background-color: rgb(223, 232, 218);
+        margin: 0;
+        padding: 0;
+
+    }
+    header {
+        background-color: rgb(14, 62, 0);
+        padding: 10px;
+        padding-bottom:20px;
+        text-align: center;
+        color: #ffffff;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+        font-weight: bold;
+    }
+    h1 {
+        font-size: 50px;
+    }
+    a {
+        text-decoration: none;
+        color: white !important;
+        margin: 0 10px;
+        font-size:20px;
+
+
+    }
+    .flash {
+            max-width: 600px;
+            margin: 1rem auto;
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: #ffdddd;
+            color: #900;
+            border: 1px solid #d00;
+            text-align: center;
+            font-size:20px;
+        }
+    footer{
+        background-color: rgb(14, 62, 0);
+        padding: 10px;
+        margin-top:10px;
+    }
+</style>
+
 <body>
     <header>
-        <h1>Product sells predictor</h1>
+        <h1>PRODUCT SELLS PREDICTOR</h1>
         <nav>
             <a href="/">Home</a>
             <a href="/predict">Predict</a>
@@ -15,11 +60,24 @@
                 <a href="/logout">Logout</a>
             {% else %}
                 <a href="/login">Login</a>
-                <a href="/register">Sign Up</a>
+                <a href="/register">Register</a>
             {% endif %}
 
 
         </nav>
     </header>
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+
+    </footer>
 </body>
 </html>
