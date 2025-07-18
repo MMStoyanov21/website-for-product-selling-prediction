@@ -1,23 +1,18 @@
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
-    """
-    Load a user by ID for Flask-Login.
-    """
     return User.query.get(int(user_id))
 
 class User(db.Model, UserMixin):
-    """
-    User model with authentication credentials and relationships.
-    """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-    password = db.Column(db.String(60), nullable=False)
+    password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='student')
     confirmed = db.Column(db.Boolean, default=False)
 
@@ -25,10 +20,13 @@ class User(db.Model, UserMixin):
     uploads = db.relationship('Upload', backref='user', lazy=True, cascade='all, delete-orphan')
     estimations = db.relationship('Estimation', backref='user', lazy=True, cascade='all, delete-orphan')
 
+    def set_password(self, raw_password):
+        self.password = generate_password_hash(raw_password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
 class Survey(db.Model):
-    """
-    Stores survey outcomes and predicted scores.
-    """
     id = db.Column(db.Integer, primary_key=True)
     hours_studied = db.Column(db.Float, nullable=False)
     predicted_score = db.Column(db.Float, nullable=True)
@@ -43,10 +41,8 @@ class Upload(db.Model):
 
     def __repr__(self):
         return f'<Upload {self.filename}>'
+
 class Estimation(db.Model):
-    """
-    Textual estimation results linked to a user.
-    """
     id = db.Column(db.Integer, primary_key=True)
     result = db.Column(db.String(255), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

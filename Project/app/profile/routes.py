@@ -9,19 +9,15 @@ from app.profile.forms import UpdateProfileForm
 profile = Blueprint('profile', __name__)
 UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
 
-
 @profile.route("/profile", methods=['GET', 'POST'])
 @login_required
 def view_profile():
-    # Check if admin user logged in via session
     is_admin = session.get('is_admin', False)
 
     if is_admin:
-        # Admin can see all users and their passwords (WARNING: insecure!)
         users = User.query.all()
         return render_template("profile.html", admin=True, users=users, user=current_user)
 
-    # Normal user profile logic
     form = UpdateProfileForm(obj=current_user)
 
     if form.validate_on_submit():
@@ -45,7 +41,6 @@ def view_profile():
         admin=False,
         user=current_user
     )
-
 
 @profile.route("/profile/delete", methods=['POST'])
 @login_required
