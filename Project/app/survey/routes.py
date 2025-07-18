@@ -40,21 +40,21 @@ def predict():
             flash(f"CSV must contain columns: {', '.join(required_cols)}", "danger")
             return redirect(request.url)
 
-        # Normalize 'type' to lowercase and strip spaces
+
         df['type'] = df['type'].str.strip().str.lower().replace({'running sho': 'running shoe'})
 
-        # Convert numeric columns safely
+
         df['price'] = pd.to_numeric(df['price'], errors='coerce')
         df['sells'] = pd.to_numeric(df['sells'], errors='coerce')
         df['size'] = pd.to_numeric(df['size'], errors='coerce')
 
-        # Drop rows with missing or invalid values in required columns
+
         df = df.dropna(subset=required_cols)
 
-        # Filter 'sells' to ensure numeric values (already converted)
+
         df = df[df['sells'].apply(lambda x: np.isfinite(x))]
 
-        # Map next month to season (lowercase strings)
+
         next_month = selected_month % 12 + 1
         SEASON_MAP = {
             12: 'winter', 1: 'winter', 2: 'winter',
@@ -65,14 +65,14 @@ def predict():
         prediction_season = SEASON_MAP[next_month]
         df['season'] = prediction_season
 
-        # Season preference map (all lowercase)
+
         SEASON_PREF = {
             'pants': ['fall', 'winter', 'spring'],
             'skirt': ['spring', 'summer'],
             'running shoe': ['fall', 'winter', 'spring', 'summer']
         }
 
-        # Boost flag if product is in season
+
         def is_preferred(row):
             product_type = row['type']
             season = row['season']
@@ -81,10 +81,10 @@ def predict():
 
         df['in_season'] = df.apply(is_preferred, axis=1).astype(int)
 
-        # DEBUG PRINT: Check the types, seasons, and in_season flags
+
         print(df[['type', 'season', 'in_season']])
 
-        # Features and target
+
         categorical_features = ['color', 'type', 'season']
         numeric_features = ['size', 'price', 'in_season']
         target = 'sells'
@@ -93,7 +93,7 @@ def predict():
         X_num = df[numeric_features]
         y = df[target].astype(float)
 
-        # Encode categorical features
+
         preprocessor = ColumnTransformer([
             ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
         ], remainder='drop')
@@ -115,17 +115,17 @@ def predict():
             flash("Target 'sells' contains NaN or infinite values.", "danger")
             return redirect(request.url)
 
-        # Train model
+
         model = LinearRegression(lr=0.001, epochs=5000)
         model.fit(X_encoded, y)
         predictions = model.predict(X_encoded)
 
         df['predicted_sells'] = predictions.round(2)
 
-        # Calculate overall mean sells (original target)
+
         season_mean = y.mean()
 
-        # Boost flag: True only if product is in season AND predicted sells > mean sells
+
         df['season_boosted'] = (df['in_season'] == 1) & (df['predicted_sells'] > season_mean)
 
         predicted = int(round(predictions.mean()))
