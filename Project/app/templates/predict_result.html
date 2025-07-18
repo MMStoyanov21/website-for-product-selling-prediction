@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+
+{% block title %}Prediction Result{% endblock %}
+
+{% block content %}
+<style>
+    .text-center h2 {
+        text-align: center;
+        color: #082200;
+        font-size: 40px;
+        margin-top: 20px;
+    }
+
+    .result-box {
+        background-color: rgb(243, 255, 239);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px auto;
+        width: 90%;
+        max-width: 1000px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+    }
+
+    .result-box table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .result-box th, .result-box td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        text-align: center;
+    }
+
+    .result-box th {
+        background-color: #d3efd2;
+    }
+
+    .boosted {
+        background-color: #d1f5d3;
+        font-weight: bold;
+        color: green;
+    }
+
+    .result-box img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        text-decoration: none;
+        color: white;
+        background-color: rgb(14, 62, 0);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+    }
+
+    .back-link:hover {
+        background-color: #0f4d00;
+    }
+</style>
+
+<div class="text-center">
+    <h2>Sales Prediction Result</h2>
+</div>
+
+<div class="result-box">
+    <p><strong>Average Predicted Sells:</strong> {{ score }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Color</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Season</th>
+                <th>Previous Sells</th>
+                <th>Predicted Sells</th>
+                <th>Season Boosted?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in df %}
+            <tr class="{% if row.season_boosted %}boosted{% endif %}">
+                <td>{{ row.color }}</td>
+                <td>{{ row.type }}</td>
+                <td>{{ row.size }}</td>
+                <td>{{ row.price }}</td>
+                <td>{{ row.season }}</td>
+                <td>{{ row.sells }}</td>
+                <td>{{ row.predicted_sells | round(2) }}</td>
+                <td>{{ 'Yes' if row.season_boosted else 'No' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+    <a class="back-link" href="{{ url_for('survey.predict') }}">← Back to Upload</a>
+</div>
+{% endblock %}

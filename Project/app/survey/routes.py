@@ -1,14 +1,12 @@
-from flask import Blueprint, render_template, request, redirect, flash, url_for, current_app
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, request, redirect, flash, current_app
+from flask_login import login_required
 from app.survey.forms import UploadCSVForm
-from app.models import Survey, db
 from app.ai_model.regression import LinearRegression
-import numpy as np
+
 import pandas as pd
-import matplotlib.pyplot as plt
-import io
-import base64
 import os
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
 
 survey = Blueprint('survey', __name__)
 
@@ -16,12 +14,16 @@ survey = Blueprint('survey', __name__)
 @login_required
 def predict():
     upload_form = UploadCSVForm()
-    plot_url = None
     predicted = None
 
-    if upload_form.validate_on_submit():
-        print("✅ Form validated")
-        file = upload_form.csv_file.data
+    if request.method == "POST":
+        file = request.files.get("csv_file")
+        selected_month = int(request.form.get("month", 0))
+
+        if not file or selected_month == 0:
+            flash("CSV file and valid month are required.", "danger")
+            return redirect(request.url)
+
         filename = file.filename
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
@@ -32,47 +34,66 @@ def predict():
             flash(f"Could not read CSV: {str(e)}", "danger")
             return redirect(request.url)
 
-        if 'hours' not in df.columns:
-            flash("CSV must contain a 'hours' column", "danger")
+        required_cols = ['color', 'type', 'size', 'price', 'sells']
+        if not all(col in df.columns for col in required_cols):
+            flash(f"CSV must contain columns: {', '.join(required_cols)}", "danger")
             return redirect(request.url)
 
-        hours_data = df['hours'].dropna().values
-        if len(hours_data) == 0:
-            flash("CSV file is empty or has no valid 'hours' data", "danger")
-            return redirect(request.url)
+        # Clean product types
+        df['type'] = df['type'].str.strip().replace({'running sho': 'running shoe'})
 
-        days = np.arange(1, len(hours_data) + 1)
-        model = LinearRegression()
-        model.fit(days, hours_data)
-        predicted_raw = model.predict(len(hours_data) + 1)
-        predicted = round(predicted_raw * 30, 2)
-        if predicted > 100:
-            predicted = 100
+        df = df.dropna(subset=required_cols)
+        df = df[required_cols]
+        df = df[df['sells'].apply(lambda x: str(x).replace('.', '', 1).isdigit())]
 
-        avg_hours = float(np.mean(hours_data))
-        entry = Survey(hours_studied=avg_hours, predicted_score=predicted, author=current_user)
-        db.session.add(entry)
-        db.session.commit()
+        next_month = selected_month % 12 + 1
+        SEASON_MAP = {
+            12: 'Winter', 1: 'Winter', 2: 'Winter',
+            3: 'Spring', 4: 'Spring', 5: 'Spring',
+            6: 'Summer', 7: 'Summer', 8: 'Summer',
+            9: 'Fall', 10: 'Fall', 11: 'Fall'
+        }
+        prediction_season = SEASON_MAP[next_month]
+        df['season'] = prediction_season
 
-        plt.figure()
-        plt.scatter(days, hours_data, color='blue', label='Observed')
-        plt.plot(days, model.predict(days), color='red', label='Regression line')
-        plt.xlabel("Day")
-        plt.ylabel("Hours Studied")
-        plt.title("Linear Regression from CSV")
-        plt.legend()
+        # Season preference map
+        SEASON_PREF = {
+            'pants': ['Fall', 'Winter', 'Spring'],
+            'skirt': ['Spring', 'Summer'],
+            'running shoe': ['Fall', 'Winter', 'Spring', 'Summer']
+        }
 
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png')
-        buf.seek(0)
-        plot_data = base64.b64encode(buf.getvalue()).decode('utf-8')
-        plot_url = f"data:image/png;base64,{plot_data}"
-        plt.close()
+        # Boost flag if product is in season
+        def is_preferred(row):
+            return row['season'] in SEASON_PREF.get(row['type'].strip().lower(), [])
 
-        return render_template("predict_result.html", score=predicted, plot_url=plot_url)
+        df['in_season'] = df.apply(is_preferred, axis=1).astype(int)
 
-    if request.method == "POST":
-        print("❌ Form not valid")
-        print(upload_form.errors)
+        # Features and target
+        features = ['color', 'type', 'size', 'price', 'season', 'in_season']
+        target = 'sells'
+        X = df[features]
+        y = df[target].astype(float)
+
+        # Encode categorical
+        categorical_features = ['color', 'type', 'season']
+        preprocessor = ColumnTransformer([
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features)
+        ], remainder='passthrough')
+
+        X_encoded = preprocessor.fit_transform(X).astype(float)
+
+        # Train
+        model = LinearRegression(lr=0.001, epochs=5000)
+        model.fit(X_encoded, y)
+        predictions = model.predict(X_encoded)
+
+        # Results
+        df['predicted_sells'] = predictions.round(2)
+        season_mean = y.mean()
+        df['season_boosted'] = df['predicted_sells'] > season_mean
+        predicted = round(float(predictions.mean()), 2)
+
+        return render_template("predict_result.html", score=predicted, df=df.to_dict(orient='records'))
 
     return render_template("predict.html", upload_form=upload_form)

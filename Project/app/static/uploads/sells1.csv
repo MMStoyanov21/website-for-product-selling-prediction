@@ -1,0 +1,16 @@
+color,type,size,price,sells
+red,pants,42,82,20
+red,pants,40,80,40
+blue,pants,44,87,30
+yellow,pants,40,81,40
+purple,pants,40,92,15
+red,skirt,42,82,100
+yellow,skirt,40,100,25
+blue,skirt,44,90,50
+red,skirt,40,102,33
+purple,skirt,40,20,44
+red,running shoes,37,82,89
+yellow,running shoes,40,100,50
+blue,running shoes,44,90,66
+red,running shoes,40,102,75
+purple,running shoes,39,20,49
