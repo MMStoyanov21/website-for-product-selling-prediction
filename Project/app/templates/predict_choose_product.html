@@ -1,0 +1,86 @@
+{% extends "layout.html" %}
+{% block title %}Select Product{% endblock %}
+
+{% block content %}
+<style>
+    .text-center h2 {
+        text-align: center;
+        color: #082200;
+        font-size: 40px;
+        margin-top: 20px;
+    }
+
+    .predict-box {
+        background-color: rgb(243, 255, 239);
+        border-radius: 15px;
+        padding: 30px;
+        margin: 30px auto;
+        width: 60%;
+        max-width: 600px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-family: Arial, sans-serif;
+    }
+
+    .predict-box form > div {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #082200;
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    button[type="submit"] {
+        background-color: rgb(14, 62, 0);
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0f4d00;
+    }
+
+    .predict-instructions {
+        text-align: center;
+        font-size: 18px;
+        margin-bottom: 20px;
+        color: #082200;
+    }
+</style>
+
+<div class="text-center">
+    <h2>Select Product to Predict</h2>
+    <div class="predict-box">
+        <p class="predict-instructions">
+            Please choose the product name to generate its sales prediction.
+        </p>
+            <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="month" value="{{ month }}">
+                <input type="hidden" name="csv_file_path" value="{{ csv_file_path }}">
+
+                <label for="product_type">Choose product type:</label>
+                <select name="product_type" id="product_type" required>
+                    {% for type in product_names %}
+                        <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit" style="margin-top: 20px;">Predict Sales</button>
+            </form>
+    </div>
+</div>
+{% endblock %}

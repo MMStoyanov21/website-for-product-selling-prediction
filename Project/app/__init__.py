@@ -33,8 +33,9 @@ def create_app(config_class=Config):
     from app.main.routes import main
     from app.survey.routes import survey  # ✅ moved here
     from app.profile.routes import profile
+    from app.profiles.routes import profiles
     app.register_blueprint(profile)
-
+    app.register_blueprint(profiles)
     app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(survey)

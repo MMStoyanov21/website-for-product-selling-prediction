@@ -11,7 +11,8 @@ from app.models import User
 from app.auth.forms import RegistrationForm, LoginForm
 
 auth = Blueprint('auth', __name__)
-
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin_acc01")
 @auth.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -42,6 +43,10 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
+        if form.username.data == ADMIN_USERNAME and form.password.data == ADMIN_PASSWORD:
+            session['is_admin'] = True
+            flash('Admin logged in successfully.', 'success')
+            return redirect(url_for('main.home'))
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
@@ -57,4 +62,14 @@ def login():
 def logout():
     logout_user()
     session.pop('is_admin', None)
+    return redirect(url_for('main.home'))
+@auth.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if session.get('is_admin'):
+        user = User.query.get_or_404(user_id)
+        db.session.delete(user)
+        db.session.commit()
+        flash('User and associated data deleted.', 'info')
+    else:
+        flash('Unauthorized access.', 'danger')
     return redirect(url_for('main.home'))

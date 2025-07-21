@@ -65,15 +65,28 @@
     .back-link:hover {
         background-color: #0f4d00;
     }
+
+    .summary {
+        text-align: center;
+        font-size: 20px;
+        color: #083300;
+        margin-top: 10px;
+    }
+
+    .summary strong {
+        color: #0a510a;
+    }
 </style>
 
 <div class="text-center">
     <h2>Sales Prediction Result</h2>
+    {% if product %}
+        <p class="summary">Results for product <strong>{{ product }}</strong></p>
+    {% endif %}
+
 </div>
 
 <div class="result-box">
-
-
     <table>
         <thead>
             <tr>
@@ -83,7 +96,7 @@
                 <th>Price</th>
                 <th>Season</th>
                 <th>Previous Sells</th>
-                <th>Predicted Increase In Sells</th>
+                <th>Predicted Sells</th>
                 <th>Season Boosted?</th>
             </tr>
         </thead>
@@ -102,8 +115,6 @@
             {% endfor %}
         </tbody>
     </table>
-
-
 
     <a class="back-link" href="{{ url_for('survey.predict') }}">← Back to Upload</a>
 </div>

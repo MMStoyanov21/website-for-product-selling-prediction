@@ -24,6 +24,8 @@ class User(db.Model, UserMixin):
         self.password = generate_password_hash(raw_password)
 
     def check_password(self, password):
+        if not self.password or ':' not in self.password:
+            return False
         return check_password_hash(self.password, password)
 
 class Survey(db.Model):

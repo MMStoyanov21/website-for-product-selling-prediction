@@ -34,6 +34,7 @@
     }
 
     input[type="file"],
+    input[type="url"],
     select {
         width: 100%;
         padding: 10px;
@@ -77,11 +78,14 @@
 <div class="text-center">
     <h2>Predict Product Sales</h2>
     <div class="predict-box">
-        <form method="POST" enctype="multipart/form-data">
+        <form method="POST" action="/app/survey/routes/" enctype="multipart/form-data">
+
+
             <div>
-                <label for="csv_file">Upload CSV:</label>
-                <input type="file" name="csv_file" id="csv_file" required>
+                <label for="csv_url">Or enter URL to CSV file:</label>
+                <input type="url" name="csv_url" id="csv_url" placeholder="https://example.com/data.csv">
             </div>
+
             <div>
                 <label for="month">Select month of data:</label>
                 <select name="month" id="month" required>
@@ -95,14 +99,14 @@
                     {% endfor %}
                 </select>
             </div>
+
             <div>
-                <button type="submit">Upload & Continue</button>
+                <button type="submit">Submit</button>
             </div>
+
         </form>
-
         <div class="bottom-buttons">
-            <a href="{{ url_for('survey.predict_url') }}" class="url-button">USE URL</a>
-
+            <a href="{{ url_for('survey.predict') }}" class="url-button">USE FILE</a>
         </div>
     </div>
 </div>
