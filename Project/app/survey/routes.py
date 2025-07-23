@@ -181,7 +181,7 @@ def predict_url():
             # Step 1: Ask user to pick product type if not already selected
             if not selected_type:
                 product_types = sorted(df['type'].unique())
-                return render_template("predict_choose_product_url.html",
+                return render_template("predict_choose_product.html",
                                        product_names=product_types,
                                        month=selected_month,
                                        csv_url=csv_url)

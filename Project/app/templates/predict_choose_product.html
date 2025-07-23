@@ -70,7 +70,12 @@
         </p>
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="month" value="{{ month }}">
-                <input type="hidden" name="csv_file_path" value="{{ csv_file_path }}">
+
+                {% if csv_url %}
+                    <input type="hidden" name="csv_url" value="{{ csv_url }}">
+                {% elif csv_file_path %}
+                    <input type="hidden" name="csv_file_path" value="{{ csv_file_path }}">
+                {% endif %}
 
                 <label for="product_type">Choose product type:</label>
                 <select name="product_type" id="product_type" required>
@@ -81,6 +86,7 @@
 
                 <button type="submit" style="margin-top: 20px;">Predict Sales</button>
             </form>
+
     </div>
 </div>
 {% endblock %}

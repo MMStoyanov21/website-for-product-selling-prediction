@@ -78,7 +78,8 @@
 <div class="text-center">
     <h2>Predict Product Sales</h2>
     <div class="predict-box">
-        <form method="POST" action="/app/survey/routes/" enctype="multipart/form-data">
+        <form method="POST" action="{{ url_for('survey.predict_url') }}" enctype="multipart/form-data">
+
 
 
             <div>
@@ -101,7 +102,7 @@
             </div>
 
             <div>
-                <button type="submit">Submit</button>
+                <button type="submit">Upload & continue</button>
             </div>
 
         </form>
