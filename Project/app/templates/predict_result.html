@@ -38,11 +38,6 @@
         background-color: #d3efd2;
     }
 
-    .boosted {
-        background-color: #d1f5d3;
-        font-weight: bold;
-        color: green;
-    }
 
     .result-box img {
         max-width: 100%;
@@ -92,12 +87,12 @@
             <tr>
                 <th>Color</th>
                 <th>Type</th>
-                <th>Size</th>
+
                 <th>Price</th>
                 <th>Season</th>
                 <th>Previous Sells</th>
                 <th>Predicted Sells</th>
-                <th>Season Boosted?</th>
+
             </tr>
         </thead>
         <tbody>
@@ -105,12 +100,12 @@
             <tr class="{% if row.season_boosted %}boosted{% endif %}">
                 <td>{{ row.color }}</td>
                 <td>{{ row.type }}</td>
-                <td>{{ row.size }}</td>
+
                 <td>{{ row.price }}</td>
                 <td>{{ row.season }}</td>
                 <td>{{ row.sells }}</td>
                 <td>{{ row.predicted_sells | round(2) }}</td>
-                <td>{{ 'Yes' if row.season_boosted else 'No' }}</td>
+
             </tr>
             {% endfor %}
         </tbody>
