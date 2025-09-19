@@ -1,0 +1,29 @@
+type,color,price,sells,month
+dress,black,54.99,30,5
+dress,red,54.99,45,5
+dress,yellow,54.99,60,5
+dress,white,54.99,70,5
+dress,flower,59.99,20,5
+dress,blue,54.99,44,5
+heels,red bottom,129.99,20,5
+heels,midnight black,89.99,15,5
+heels,white,94.99,30,5
+heels,red,79.99,15,5
+heels,blue,54.89,10,5
+heels,black,89.99,30,5
+t-shitrs,white,19.99,20,5
+t-shitrs,print,24.99,55,5
+t-shitrs,blue,25.95,13,5
+t-shitrs,red,19.99,20,5
+t-shitrs,yellow,19.95,14,5
+pants,black-cargo,89.99,60,5
+pants,white,64.99,35,5
+pants,beige,79.95,44,5
+pants,caramel,49.95,53,5
+pants,blue,75.95,55,5
+pants,green,69.95,24,5
+shirt,white,44.95,70,5
+shirt,light-blue,44.95,65,5
+shirt,beige,49.95,20,5
+shirt,colorful,59.95,15,5
+shirt,black and white,79.95,69,5

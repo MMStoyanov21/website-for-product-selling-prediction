@@ -82,19 +82,7 @@
                 <label for="csv_file">Upload CSV:</label>
                 <input type="file" name="csv_file" id="csv_file" required>
             </div>
-            <div>
-                <label for="month">Select month of data:</label>
-                <select name="month" id="month" required>
-                    <option value="">--Select Month--</option>
-                    {% set months = [
-                        'January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December']
-                    %}
-                    {% for i in range(1, 13) %}
-                        <option value="{{ i }}">{{ months[i-1] }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+
             <div>
                 <button type="submit">Upload & Continue</button>
             </div>

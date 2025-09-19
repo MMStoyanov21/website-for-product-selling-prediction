@@ -3,10 +3,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db, login_manager
 from datetime import datetime
 
+# Load user for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+# ------------------------------
+# User Model
+# ------------------------------
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
@@ -24,10 +28,15 @@ class User(db.Model, UserMixin):
         self.password = generate_password_hash(raw_password)
 
     def check_password(self, password):
-        if not self.password or ':' not in self.password:
+        # Safe check against empty or legacy hash formats
+        try:
+            return check_password_hash(self.password, password)
+        except ValueError:
             return False
-        return check_password_hash(self.password, password)
 
+# ------------------------------
+# Survey Model
+# ------------------------------
 class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hours_studied = db.Column(db.Float, nullable=False)
@@ -35,6 +44,9 @@ class Survey(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+# ------------------------------
+# Upload Model
+# ------------------------------
 class Upload(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(120), nullable=False)
@@ -44,6 +56,9 @@ class Upload(db.Model):
     def __repr__(self):
         return f'<Upload {self.filename}>'
 
+# ------------------------------
+# Estimation Model
+# ------------------------------
 class Estimation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     result = db.Column(db.String(255), nullable=False)
